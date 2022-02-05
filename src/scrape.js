@@ -34,43 +34,77 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
 var puppeteer = require('puppeteer');
-(function () { return __awaiter(_this, void 0, void 0, function () {
-    var browser, page, res;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, puppeteer.launch({ headless: true })];
-            case 1:
-                browser = _a.sent();
-                return [4 /*yield*/, browser.newPage()];
-            case 2:
-                page = _a.sent();
-                return [4 /*yield*/, page.goto('https://www.gurufocus.com/insider/summary', {
-                        waitUntil: 'networkidle0',
-                        timeout: 0
-                    })];
-            case 3:
-                _a.sent();
-                return [4 /*yield*/, page.evaluate(function () {
-                        var info = [];
-                        for (var i = 1; i < 10; i++) {
+var fs = require('fs');
+var jsonString = fs.readFileSync("./database.json");
+var data = JSON.parse(jsonString);
+var dataSet = new Set(data);
+var twitter = require("./post");
+scrape();
+function scrape() {
+    var _this = this;
+    (function () { return __awaiter(_this, void 0, void 0, function () {
+        function pushData(result, res) {
+            if (data.length >= 10) {
+                data.shift();
+            }
+            data.push(result);
+            fs.writeFile("./database.json", JSON.stringify(data), function (err) {
+                if (err)
+                    throw err;
+            });
+            twitter.post(res);
+        }
+        var browser, page, i, res, result;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, puppeteer.launch({ headless: true })];
+                case 1:
+                    browser = _a.sent();
+                    return [4 /*yield*/, browser.newPage()];
+                case 2:
+                    page = _a.sent();
+                    return [4 /*yield*/, page.goto('https://www.gurufocus.com/insider/summary', {
+                            waitUntil: 'networkidle0',
+                            timeout: 0
+                        })];
+                case 3:
+                    _a.sent();
+                    i = 10;
+                    _a.label = 4;
+                case 4:
+                    if (!(i > 0)) return [3 /*break*/, 7];
+                    return [4 /*yield*/, page.evaluate(function (i) {
+                            var info = [];
                             info.push({
                                 ticker: document.querySelector("#wrapper > div.table-section.full-width-on-print.full-width > table > tbody > tr:nth-child(".concat(i, ")")).querySelectorAll('td')[0].innerText,
                                 insiderName: document.querySelector("#wrapper > div.table-section.full-width-on-print.full-width > table > tbody > tr:nth-child(".concat(i, ")")).querySelectorAll('td')[4].innerText,
                                 insiderPosition: document.querySelector("#wrapper > div.table-section.full-width-on-print.full-width > table > tbody > tr:nth-child(".concat(i, ")")).querySelectorAll('td')[5].innerText,
                                 positionType: document.querySelector("#wrapper > div.table-section.full-width-on-print.full-width > table > tbody > tr:nth-child(".concat(i, ")")).querySelectorAll('td')[7].innerText,
                                 quantity: document.querySelector("#wrapper > div.table-section.full-width-on-print.full-width > table > tbody > tr:nth-child(".concat(i, ")")).querySelectorAll('td')[8].innerText,
-                                priceChange: document.querySelector("#wrapper > div.table-section.full-width-on-print.full-width > table > tbody > tr:nth-child(".concat(i, ")")).querySelectorAll('td')[9].innerText
+                                priceChange: document.querySelector("#wrapper > div.table-section.full-width-on-print.full-width > table > tbody > tr:nth-child(".concat(i, ")")).querySelectorAll('td')[9].innerText,
+                                cost: document.querySelector("#wrapper > div.table-section.full-width-on-print.full-width > table > tbody > tr:nth-child(".concat(i, ")")).querySelectorAll('td')[11].innerText
                             });
-                        }
-                        return info;
-                    })];
-            case 4:
-                res = _a.sent();
-                console.log(res);
-                browser.close();
-                return [2 /*return*/];
-        }
-    });
-}); })();
+                            return info;
+                        }, i)];
+                case 5:
+                    res = _a.sent();
+                    result = res[0].cost;
+                    if (dataSet.has(result)) {
+                        return [3 /*break*/, 6];
+                    }
+                    else {
+                        pushData(result, res);
+                        browser.close();
+                        return [2 /*return*/];
+                    }
+                    _a.label = 6;
+                case 6:
+                    i--;
+                    return [3 /*break*/, 4];
+                case 7: return [2 /*return*/];
+            }
+        });
+    }); })();
+}
+module.exports = { scrape: scrape };
