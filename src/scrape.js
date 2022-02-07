@@ -108,6 +108,6 @@ function scrape() {
             }
         });
     }); })();
-    setTimeout(scrape, 10000);
+    setTimeout(scrape, 30000);
 }
 module.exports = { scrape: scrape };

@@ -36,24 +36,36 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var Twitter = require('twitter');
 require('dotenv').config();
-post(4);
 function post(newPost) {
     return __awaiter(this, void 0, void 0, function () {
-        var client;
+        var object, ticker, insiderName, insiderPosition, positionType, quantity, priceChange, cost, update, client;
         return __generator(this, function (_a) {
-            client = new Twitter({
-                consumer_key: process.env.consumer_key,
-                consumer_secret: process.env.consumer_secret,
-                access_token_key: process.env.access_token_key,
-                access_token_secret: process.env.access_token_secret
-            });
-            client.post('statuses/update', { status: 'I Love Twitter' }, function (error, tweet, response) {
-                if (error)
-                    throw error;
-                console.log(tweet); // Tweet body.
-                console.log(response); // Raw response object.
-            });
-            return [2 /*return*/];
+            switch (_a.label) {
+                case 0:
+                    object = newPost[0];
+                    ticker = object.ticker;
+                    insiderName = object.insiderName;
+                    insiderPosition = object.insiderPosition;
+                    positionType = object.positionType;
+                    quantity = object.quantity;
+                    priceChange = object.priceChange;
+                    cost = object.cost;
+                    update = "".concat(insiderName, ", ").concat(insiderPosition, " of #").concat(ticker, " opened new ").concat(positionType, " order for ").concat(cost, " (qty: ").concat(quantity, ")");
+                    client = new Twitter({
+                        consumer_key: process.env.consumer_key,
+                        consumer_secret: process.env.consumer_secret,
+                        access_token_key: process.env.access_token_key,
+                        access_token_secret: process.env.access_token_secret,
+                    });
+                    return [4 /*yield*/, client.post('statuses/update', { status: update }, function (error, tweet, response) {
+                            if (error)
+                                throw error;
+                            console.log(tweet.text);
+                        })];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
         });
     });
 }
