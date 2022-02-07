@@ -36,13 +36,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var puppeteer = require('puppeteer');
 var fs = require('fs');
-var jsonString = fs.readFileSync("./database.json");
-var data = JSON.parse(jsonString);
-var dataSet = new Set(data);
 var twitter = require("./post");
 scrape();
 function scrape() {
     var _this = this;
+    var jsonString = fs.readFileSync("./database.json");
+    var data = JSON.parse(jsonString);
+    var dataSet = new Set(data);
     (function () { return __awaiter(_this, void 0, void 0, function () {
         function pushData(result, res) {
             if (data.length >= 10) {
@@ -58,7 +58,7 @@ function scrape() {
         var browser, page, i, res, result;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, puppeteer.launch({ headless: true })];
+                case 0: return [4 /*yield*/, puppeteer.launch({ args: ['--single-process', '--no-zygote', '--no-sandbox'], headless: true })];
                 case 1:
                     browser = _a.sent();
                     return [4 /*yield*/, browser.newPage()];
@@ -91,20 +91,23 @@ function scrape() {
                     res = _a.sent();
                     result = res[0].cost;
                     if (dataSet.has(result)) {
+                        console.log(result);
                         return [3 /*break*/, 6];
                     }
                     else {
                         pushData(result, res);
-                        browser.close();
                         return [2 /*return*/];
                     }
                     _a.label = 6;
                 case 6:
                     i--;
                     return [3 /*break*/, 4];
-                case 7: return [2 /*return*/];
+                case 7:
+                    browser.close();
+                    return [2 /*return*/];
             }
         });
     }); })();
+    setTimeout(scrape, 10000);
 }
 module.exports = { scrape: scrape };

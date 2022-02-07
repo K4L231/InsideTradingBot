@@ -34,10 +34,25 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var Twitter = require('twitter');
+require('dotenv').config();
+post(4);
 function post(newPost) {
     return __awaiter(this, void 0, void 0, function () {
+        var client;
         return __generator(this, function (_a) {
-            console.log('POSTED', newPost);
+            client = new Twitter({
+                consumer_key: process.env.consumer_key,
+                consumer_secret: process.env.consumer_secret,
+                access_token_key: process.env.access_token_key,
+                access_token_secret: process.env.access_token_secret
+            });
+            client.post('statuses/update', { status: 'I Love Twitter' }, function (error, tweet, response) {
+                if (error)
+                    throw error;
+                console.log(tweet); // Tweet body.
+                console.log(response); // Raw response object.
+            });
             return [2 /*return*/];
         });
     });

@@ -1,16 +1,15 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
-const jsonString = fs.readFileSync("./database.json");
-const data = JSON.parse(jsonString);
-const dataSet = new Set(data);
-
-const twitter = require("./post")
+const twitter = require("./post");
 
 scrape();
-
 function scrape() {
+  const jsonString = fs.readFileSync("./database.json");
+  const data = JSON.parse(jsonString);
+  const dataSet = new Set(data);
+
   (async () => {
-    const browser = await puppeteer.launch( {headless: true});
+    const browser = await puppeteer.launch( {args: ['--single-process', '--no-zygote', '--no-sandbox'], headless: true});
     const page = await browser.newPage();
     await page.goto('https://www.gurufocus.com/insider/summary', {
       waitUntil: 'networkidle0',
@@ -35,14 +34,13 @@ function scrape() {
       let result = res[0].cost;
 
       if(dataSet.has(result)){
+        console.log(result)
         continue;
       } else {
         pushData(result, res)
-        browser.close();
         return;
       }
   }
-
 
     function pushData(result, res) {
       if (data.length >= 10) {
@@ -55,9 +53,10 @@ function scrape() {
       )
         twitter.post(res)
   }
+  browser.close();
+  })();
 
-    })();
-
+  setTimeout(scrape, 10000)
 }
 
 
